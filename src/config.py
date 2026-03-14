@@ -35,12 +35,25 @@ def _float_in_range(key: str, default: str, min_value: float, max_value: float) 
     return value
 
 
+def _int_in_range(key: str, default: str, min_value: int, max_value: int) -> int:
+    raw = _optional(key, default)
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise EnvironmentError(f"Environment variable '{key}' must be an integer.") from exc
+    if value < min_value or value > max_value:
+        raise EnvironmentError(
+            f"Environment variable '{key}' must be between {min_value} and {max_value}."
+        )
+    return value
+
+
 class Config:
     GROQ_API_KEY: str = _require("GROQ_API_KEY")
     CLASSIFIER_MODEL: str = _optional("CLASSIFIER_MODEL", "llama-3.1-8b-instant")
     RESPONSE_MODEL: str = _optional("RESPONSE_MODEL", "llama-3.3-70b-versatile")
     CONFIDENCE_THRESHOLD: float = _float_in_range("CONFIDENCE_THRESHOLD", "0.7", 0.0, 1.0)
-    APP_PORT: int = int(_optional("APP_PORT", "8000"))
+    APP_PORT: int = _int_in_range("APP_PORT", "8000", 1, 65535)
     LOG_FILE: str = "route_log.jsonl"
     PROMPTS_FILE: str = "prompts/prompts.json"
     VALID_INTENTS: tuple = ("code", "data", "writing", "career", "unclear")

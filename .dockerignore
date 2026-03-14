@@ -11,5 +11,4 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
-README.md
 .dockerignore

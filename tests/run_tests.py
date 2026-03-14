@@ -38,10 +38,12 @@ def run():
     print("LLM Prompt Router — Test Suite")
     print("=" * 60)
     passed = failed = 0
+    intent_counts: dict[str, int] = {}
     for i, msg in enumerate(MESSAGES, 1):
         print(f"[{i:02d}/{len(MESSAGES)}] {msg[:75]!r}")
         try:
             intent = classify_intent(msg)
+            intent_counts[intent["intent"]] = intent_counts.get(intent["intent"], 0) + 1
             response = route_and_respond(msg, intent)
             log_route(msg, intent["intent"], intent["confidence"], response)
             print(f"       Intent: {intent['intent']}  Confidence: {intent['confidence']:.4f}")
@@ -53,6 +55,8 @@ def run():
             failed += 1
         print("-" * 60)
     print(f"\n{passed} passed, {failed} failed out of {len(MESSAGES)}.")
+    if intent_counts:
+        print(f"Intent distribution: {intent_counts}")
     if os.path.exists("route_log.jsonl"):
         lines = sum(1 for l in open("route_log.jsonl") if l.strip())
         print(f"route_log.jsonl: {lines} entries.")

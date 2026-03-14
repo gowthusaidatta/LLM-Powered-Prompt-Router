@@ -44,6 +44,10 @@ Return ONLY this JSON, no other text:
 _SAFE: dict = {"intent": "unclear", "confidence": 0.0}
 
 
+def _safe() -> dict:
+    return dict(_SAFE)
+
+
 def _strip_markdown_fence(text: str) -> str:
     cleaned = text.strip()
     if cleaned.startswith("```"):
@@ -77,19 +81,19 @@ def _parse(raw: str) -> dict:
         except json.JSONDecodeError:
             match = re.search(r"\{[\s\S]*\}", cleaned)
             if not match:
-                return _SAFE
+                return _safe()
             parsed = json.loads(match.group(0))
         if not isinstance(parsed, dict):
-            return _SAFE
+            return _safe()
         intent = str(parsed.get("intent", "")).lower().strip()
         confidence = parsed.get("confidence", 0.0)
         if intent not in config.VALID_INTENTS:
-            return _SAFE
+            return _safe()
         if not isinstance(confidence, (int, float)):
             confidence = 0.0
         return {"intent": intent, "confidence": round(max(0.0, min(1.0, float(confidence))), 4)}
     except Exception:
-        return _SAFE
+        return _safe()
 
 
 def classify_intent(message: str) -> dict:
@@ -107,7 +111,7 @@ def classify_intent(message: str) -> dict:
         A dict: {"intent": str, "confidence": float}
     """
     if not message or not message.strip():
-        return _SAFE
+        return _safe()
 
     override = _detect_override(message)
     if override:
@@ -131,4 +135,4 @@ def classify_intent(message: str) -> dict:
             return {"intent": "unclear", "confidence": result["confidence"]}
         return result
     except Exception:
-        return _SAFE
+        return _safe()

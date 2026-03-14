@@ -26,6 +26,14 @@ app = FastAPI(
 )
 
 
+def _sanitize_limit(limit: int) -> int:
+    if limit < 1:
+        return 1
+    if limit > 200:
+        return 200
+    return limit
+
+
 class ChatRequest(BaseModel):
     message: str
 
@@ -163,6 +171,7 @@ async def chat(request: ChatRequest):
 @app.get("/api/logs")
 async def get_logs(limit: int = 20):
     """Return the most recent log entries from route_log.jsonl."""
+    limit = _sanitize_limit(limit)
     if not os.path.exists(config.LOG_FILE):
         return JSONResponse(content={"entries": [], "total": 0})
     entries = []

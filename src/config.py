@@ -54,7 +54,7 @@ class Config:
     RESPONSE_MODEL: str = _optional("RESPONSE_MODEL", "llama-3.3-70b-versatile")
     CONFIDENCE_THRESHOLD: float = _float_in_range("CONFIDENCE_THRESHOLD", "0.7", 0.0, 1.0)
     APP_PORT: int = _int_in_range("APP_PORT", "8000", 1, 65535)
-    LOG_FILE: str = "route_log.jsonl"
+    LOG_FILE: str = _optional("LOG_FILE", "route_log.jsonl")
     PROMPTS_FILE: str = "prompts/prompts.json"
     VALID_INTENTS: tuple = ("code", "data", "writing", "career", "unclear")
 

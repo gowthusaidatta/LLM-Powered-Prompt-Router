@@ -136,6 +136,8 @@ With compose:
 docker compose up --build
 ```
 
+The compose setup includes practical hardening defaults (`init`, `no-new-privileges`, read-only root filesystem with `/tmp` tmpfs) and JSON-file log rotation.
+
 Build and run directly:
 
 ```bash
@@ -153,6 +155,8 @@ docker run --env-file .env -p 8000:8000 llm-prompt-router:latest
 | POST | /api/chat | Classify + route + respond |
 | GET | /api/logs | Recent log entries |
 | GET | /health | Health status |
+
+Note: `/api/logs?limit=` is clamped between 1 and 200 to prevent invalid or excessive payload requests.
 
 Example request:
 

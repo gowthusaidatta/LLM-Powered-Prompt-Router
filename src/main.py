@@ -191,7 +191,12 @@ async def get_logs(limit: int = 20):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "1.0.0"}
+    return {
+        "status": "ok",
+        "version": "1.0.0",
+        "classifier_model": config.CLASSIFIER_MODEL,
+        "response_model": config.RESPONSE_MODEL,
+    }
 
 
 def run_cli():

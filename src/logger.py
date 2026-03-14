@@ -3,6 +3,7 @@ Appends one JSON Lines entry per request to route_log.jsonl.
 Log failures print to stderr but never interrupt application flow.
 """
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from src.config import config
@@ -18,6 +19,9 @@ def log_route(user_message: str, intent: str, confidence: float, final_response:
         "final_response": final_response,
     }
     try:
+        directory = os.path.dirname(config.LOG_FILE)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
         with open(config.LOG_FILE, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     except OSError as exc:

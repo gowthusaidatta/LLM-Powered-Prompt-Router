@@ -58,7 +58,8 @@ def run():
     if intent_counts:
         print(f"Intent distribution: {intent_counts}")
     if os.path.exists("route_log.jsonl"):
-        lines = sum(1 for l in open("route_log.jsonl") if l.strip())
+        with open("route_log.jsonl", "r", encoding="utf-8") as log_file:
+            lines = sum(1 for l in log_file if l.strip())
         print(f"route_log.jsonl: {lines} entries.")
     if failed:
         sys.exit(1)

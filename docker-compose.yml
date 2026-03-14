@@ -3,6 +3,8 @@ version: "3.9"
 services:
   llm-prompt-router:
     image: llm-prompt-router:latest
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: Dockerfile

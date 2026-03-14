@@ -20,6 +20,9 @@ services:
       - APP_PORT=8000
     volumes:
       - ./route_log.jsonl:/app/route_log.jsonl
+    read_only: true
+    tmpfs:
+      - /tmp
     logging:
       driver: json-file
       options:

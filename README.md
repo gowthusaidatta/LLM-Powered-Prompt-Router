@@ -93,6 +93,9 @@ Prompts are configured in `prompts/prompts.json` and validated at startup.
 | RESPONSE_MODEL | No | llama-3.3-70b-versatile | Response model |
 | CONFIDENCE_THRESHOLD | No | 0.7 | Low-confidence fallback to `unclear` |
 | APP_PORT | No | 8000 | FastAPI server port |
+| LOG_FILE | No | route_log.jsonl | Route log output file |
+| PROMPTS_FILE | No | prompts/prompts.json | Prompt configuration source |
+| MAX_CLASSIFIER_CHARS | No | 4000 | Max message size sent to classifier |
 
 ---
 

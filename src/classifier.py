@@ -72,7 +72,13 @@ def _parse(raw: str) -> dict:
     """Parse LLM response into validated intent dict. Never raises."""
     try:
         cleaned = _strip_markdown_fence(raw)
-        parsed = json.loads(cleaned)
+        try:
+            parsed = json.loads(cleaned)
+        except json.JSONDecodeError:
+            match = re.search(r"\{[\s\S]*\}", cleaned)
+            if not match:
+                return _SAFE
+            parsed = json.loads(match.group(0))
         if not isinstance(parsed, dict):
             return _SAFE
         intent = str(parsed.get("intent", "")).lower().strip()

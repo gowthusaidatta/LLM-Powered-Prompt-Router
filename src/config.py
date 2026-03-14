@@ -22,6 +22,10 @@ def _optional(key: str, default: str) -> str:
     return os.getenv(key, default)
 
 
+def _as_bool(raw: str) -> bool:
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 def _float_in_range(key: str, default: str, min_value: float, max_value: float) -> float:
     raw = _optional(key, default)
     try:
@@ -49,7 +53,10 @@ def _int_in_range(key: str, default: str, min_value: int, max_value: int) -> int
 
 
 class Config:
-    GROQ_API_KEY: str = _require("GROQ_API_KEY")
+    OFFLINE_FALLBACK: bool = _as_bool(_optional("OFFLINE_FALLBACK", "1"))
+    GROQ_API_KEY: str = _optional("GROQ_API_KEY", "")
+    if not GROQ_API_KEY and not OFFLINE_FALLBACK:
+        _require("GROQ_API_KEY")
     CLASSIFIER_MODEL: str = _optional("CLASSIFIER_MODEL", "llama-3.1-8b-instant")
     RESPONSE_MODEL: str = _optional("RESPONSE_MODEL", "llama-3.3-70b-versatile")
     CONFIDENCE_THRESHOLD: float = _float_in_range("CONFIDENCE_THRESHOLD", "0.7", 0.0, 1.0)

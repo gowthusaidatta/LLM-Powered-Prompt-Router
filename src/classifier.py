@@ -7,7 +7,7 @@ import re
 from groq import Groq
 from src.config import config
 
-_client = Groq(api_key=config.GROQ_API_KEY)
+_client = Groq(api_key=config.GROQ_API_KEY) if config.GROQ_API_KEY else None
 
 _SYSTEM = """You are a strict intent classification engine for a prompt routing system.
 
@@ -96,6 +96,47 @@ def _parse(raw: str) -> dict:
         return _safe()
 
 
+def _classify_offline(message: str) -> dict:
+    """Heuristic fallback used when LLM is unavailable."""
+    text = message.lower().strip()
+    if not text:
+        return _safe()
+
+    if text in {"hi", "hey", "hello", "yo", "sup"} or len(text) < 3:
+        return {"intent": "unclear", "confidence": 0.95}
+
+    score = {"code": 0, "data": 0, "writing": 0, "career": 0}
+
+    code_hits = ["python", "sql", "bug", "function", "api", "code", "debug", "query", "loop"]
+    data_hits = ["average", "mean", "median", "dataset", "data", "pivot", "distribution", "chart", "bimodal"]
+    writing_hits = ["paragraph", "sentence", "rewrite", "writing", "verbose", "tone", "clarity", "awkward"]
+    career_hits = ["resume", "career", "interview", "cover letter", "job", "promotion", "salary"]
+
+    for token in code_hits:
+        if token in text:
+            score["code"] += 1
+    for token in data_hits:
+        if token in text:
+            score["data"] += 1
+    for token in writing_hits:
+        if token in text:
+            score["writing"] += 1
+    for token in career_hits:
+        if token in text:
+            score["career"] += 1
+
+    best_intent = max(score, key=score.get)
+    best_score = score[best_intent]
+    if best_score == 0:
+        return {"intent": "unclear", "confidence": 0.0}
+
+    confidence = min(0.95, 0.65 + best_score * 0.08)
+    result = {"intent": best_intent, "confidence": round(confidence, 4)}
+    if result["confidence"] < config.CONFIDENCE_THRESHOLD:
+        return {"intent": "unclear", "confidence": result["confidence"]}
+    return result
+
+
 def classify_intent(message: str) -> dict:
     """Classify the intent of a user message.
 
@@ -119,6 +160,9 @@ def classify_intent(message: str) -> dict:
 
     clipped_message = message.strip()[: config.MAX_CLASSIFIER_CHARS]
 
+    if _client is None:
+        return _classify_offline(clipped_message)
+
     try:
         response = _client.chat.completions.create(
             model=config.CLASSIFIER_MODEL,
@@ -135,4 +179,6 @@ def classify_intent(message: str) -> dict:
             return {"intent": "unclear", "confidence": result["confidence"]}
         return result
     except Exception:
+        if config.OFFLINE_FALLBACK:
+            return _classify_offline(clipped_message)
         return _safe()

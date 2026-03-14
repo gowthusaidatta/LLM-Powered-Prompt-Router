@@ -96,6 +96,7 @@ Prompts are configured in `prompts/prompts.json` and validated at startup.
 | LOG_FILE | No | route_log.jsonl | Route log output file |
 | PROMPTS_FILE | No | prompts/prompts.json | Prompt configuration source |
 | MAX_CLASSIFIER_CHARS | No | 4000 | Max message size sent to classifier |
+| OFFLINE_FALLBACK | No | 1 | Allows local fallback when API key is missing/unavailable |
 
 ---
 
@@ -213,7 +214,7 @@ Required keys: `intent`, `confidence`, `user_message`, `final_response`.
 ## Troubleshooting
 
 - Error: `Required environment variable 'GROQ_API_KEY' is not set`
-  - Fix: set `GROQ_API_KEY` in `.env` (or system environment) before running.
+   - Fix: set `GROQ_API_KEY` in `.env` (or system environment), or keep `OFFLINE_FALLBACK=1` for local fallback mode.
 - Error: `python is not recognized`
   - Fix: use `py` instead of `python` on Windows.
 

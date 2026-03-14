@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  llm-prompt-router:
+    image: llm-prompt-router:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: llm-prompt-router
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - CLASSIFIER_MODEL=${CLASSIFIER_MODEL:-llama-3.1-8b-instant}
+      - RESPONSE_MODEL=${RESPONSE_MODEL:-llama-3.3-70b-versatile}
+      - CONFIDENCE_THRESHOLD=${CONFIDENCE_THRESHOLD:-0.7}
+      - APP_PORT=8000
+    volumes:
+      - ./route_log.jsonl:/app/route_log.jsonl
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

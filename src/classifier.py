@@ -44,6 +44,13 @@ Return ONLY this JSON, no other text:
 _SAFE: dict = {"intent": "unclear", "confidence": 0.0}
 
 
+def _strip_markdown_fence(text: str) -> str:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"```(?:json)?\s*", "", cleaned).strip().rstrip("`").strip()
+    return cleaned
+
+
 def _detect_override(message: str) -> dict | None:
     """Check for manual @intent override prefix.
 
@@ -64,9 +71,7 @@ def _detect_override(message: str) -> dict | None:
 def _parse(raw: str) -> dict:
     """Parse LLM response into validated intent dict. Never raises."""
     try:
-        cleaned = raw.strip()
-        if cleaned.startswith("```"):
-            cleaned = re.sub(r"```(?:json)?\s*", "", cleaned).strip().rstrip("`").strip()
+        cleaned = _strip_markdown_fence(raw)
         parsed = json.loads(cleaned)
         if not isinstance(parsed, dict):
             return _SAFE

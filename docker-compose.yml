@@ -8,6 +8,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    init: true
     container_name: llm-prompt-router
     ports:
       - "8000:8000"

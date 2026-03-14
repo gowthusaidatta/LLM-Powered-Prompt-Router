@@ -102,12 +102,14 @@ def classify_intent(message: str) -> dict:
     if override:
         return override
 
+    clipped_message = message.strip()[: config.MAX_CLASSIFIER_CHARS]
+
     try:
         response = _client.chat.completions.create(
             model=config.CLASSIFIER_MODEL,
             messages=[
                 {"role": "system", "content": _SYSTEM},
-                {"role": "user", "content": f"Classify this message:\n\n{message}"},
+                {"role": "user", "content": f"Classify this message:\n\n{clipped_message}"},
             ],
             temperature=0.0,
             max_tokens=64,

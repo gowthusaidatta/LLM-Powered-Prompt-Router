@@ -10,6 +10,11 @@ from src.prompts import PROMPTS
 _client = Groq(api_key=config.GROQ_API_KEY)
 
 
+def _sanitize_user_message(message: str) -> str:
+    stripped = message.strip()
+    return re.sub(r"^@\w+\s+", "", stripped).strip() or stripped
+
+
 def route_and_respond(message: str, intent: dict) -> str:
     """Select expert prompt and generate final response.
 
@@ -28,7 +33,7 @@ def route_and_respond(message: str, intent: dict) -> str:
         label = "unclear"
 
     system_prompt = PROMPTS[label]
-    clean = re.sub(r"^@\w+\s+", "", message.strip()).strip() or message.strip()
+    clean = _sanitize_user_message(message)
 
     try:
         response = _client.chat.completions.create(

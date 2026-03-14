@@ -55,7 +55,7 @@ class Config:
     CONFIDENCE_THRESHOLD: float = _float_in_range("CONFIDENCE_THRESHOLD", "0.7", 0.0, 1.0)
     APP_PORT: int = _int_in_range("APP_PORT", "8000", 1, 65535)
     LOG_FILE: str = _optional("LOG_FILE", "route_log.jsonl")
-    PROMPTS_FILE: str = "prompts/prompts.json"
+    PROMPTS_FILE: str = _optional("PROMPTS_FILE", "prompts/prompts.json")
     VALID_INTENTS: tuple = ("code", "data", "writing", "career", "unclear")
 
 

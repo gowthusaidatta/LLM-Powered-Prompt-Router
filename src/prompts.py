@@ -14,6 +14,9 @@ def load_prompts() -> dict:
     missing = set(config.VALID_INTENTS) - set(prompts.keys())
     if missing:
         raise ValueError(f"Prompts file missing required keys: {missing}")
+    invalid = [key for key, value in prompts.items() if not isinstance(value, str) or not value.strip()]
+    if invalid:
+        raise ValueError(f"Prompts for these intents must be non-empty strings: {invalid}")
     return prompts
 
 

@@ -23,6 +23,6 @@ def log_route(user_message: str, intent: str, confidence: float, final_response:
         if directory:
             os.makedirs(directory, exist_ok=True)
         with open(config.LOG_FILE, "a", encoding="utf-8") as f:
-            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            f.write(json.dumps(entry, ensure_ascii=False, separators=(",", ":")) + "\n")
     except OSError as exc:
         print(f"[WARNING] Failed to write log: {exc}", file=sys.stderr)

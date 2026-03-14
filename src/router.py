@@ -45,6 +45,9 @@ def route_and_respond(message: str, intent: dict) -> str:
             temperature=0.7,
             max_tokens=1024,
         )
-        return response.choices[0].message.content or ""
+        final_text = (response.choices[0].message.content or "").strip()
+        if final_text:
+            return final_text
+        return "Could you clarify if you need help with coding, data analysis, writing, or career advice?"
     except Exception as exc:
         raise RuntimeError(f"Response generation failed for intent '{label}': {exc}") from exc

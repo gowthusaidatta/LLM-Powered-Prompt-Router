@@ -10,6 +10,10 @@ from src.prompts import PROMPTS
 _client = Groq(api_key=config.GROQ_API_KEY) if config.GROQ_API_KEY else None
 
 
+def _clarification_question() -> str:
+    return "Are you asking for help with coding, data analysis, writing improvement, or career advice?"
+
+
 def _sanitize_user_message(message: str) -> str:
     stripped = message.strip()
     return re.sub(r"^@\w+\s+", "", stripped).strip() or stripped
@@ -36,7 +40,7 @@ def _offline_response(label: str, message: str) -> str:
             "I could not reach the LLM provider, so here is a safe offline response.\n"
             "What role are you targeting and what is your current experience level? I can then suggest concrete next steps."
         )
-    return "Are you asking for help with coding, data analysis, writing improvement, or career advice?"
+    return _clarification_question()
 
 
 def route_and_respond(message: str, intent: dict) -> str:
@@ -55,6 +59,10 @@ def route_and_respond(message: str, intent: dict) -> str:
     label = intent.get("intent", "unclear")
     if label not in PROMPTS:
         label = "unclear"
+
+    # For unclear inputs, always ask for clarification instead of guessing.
+    if label == "unclear":
+        return _clarification_question()
 
     system_prompt = PROMPTS[label]
     clean = _sanitize_user_message(message)
@@ -75,7 +83,7 @@ def route_and_respond(message: str, intent: dict) -> str:
         final_text = (response.choices[0].message.content or "").strip()
         if final_text:
             return final_text
-        return "Could you clarify if you need help with coding, data analysis, writing, or career advice?"
+        return _clarification_question()
     except Exception as exc:
         if config.OFFLINE_FALLBACK:
             return _offline_response(label, clean)
